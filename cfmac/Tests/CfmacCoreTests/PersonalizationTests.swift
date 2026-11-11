@@ -44,7 +44,8 @@ struct PrivacyGuardTests {
         #expect(SafetyGuard.check(home + "/Pictures/A.photoslibrary", protected: []) == .protectedData)
     }
 
-    /// cfmac's sources must not contain networking or personal-data APIs, or web links.
+    /// cfmac's sources must not contain networking or personal-data APIs, or web links. The one
+    /// exception is the search page Look Up opens in the user's browser, and only in WebLookup.
     @Test func sourcesUseNoNetworkingOrPersonalDataAPIs() throws {
         let sources = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("Sources")
@@ -57,14 +58,41 @@ struct PrivacyGuardTests {
         var checked = 0
         for case let relative as String in enumerator where relative.hasSuffix(".swift") {
             // The plist DOCTYPE names a DTD by URL; nothing ever fetches it.
-            let text = try String(contentsOf: sources.appendingPathComponent(relative), encoding: .utf8)
+            var text = try String(contentsOf: sources.appendingPathComponent(relative), encoding: .utf8)
                 .replacingOccurrences(of: "\"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"", with: "")
+            if relative.hasSuffix("System/WebLookup.swift") {
+                text = text.replacingOccurrences(of: "\"https://www.google.com/search\"", with: "")
+            }
             checked += 1
             for term in forbidden {
                 #expect(!text.contains(term), "\(relative) uses \(term)")
             }
         }
         #expect(checked > 30)
+    }
+}
+
+@Suite("Look Up")
+struct WebLookupTests {
+    @Test func buildsAnEncodedGoogleSearch() throws {
+        let url = try #require(WebLookup.searchURL("how to delete Docker & Ollama models?"))
+        #expect(url.host == "www.google.com")
+        #expect(url.path == "/search")
+        let query = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "q" }?.value
+        #expect(query == "how to delete Docker & Ollama models?")
+        #expect(!url.absoluteString.contains(" "))
+        #expect(WebLookup.searchURL("   ") == nil)
+    }
+
+    @Test func storageItemsOfferALookUpInsteadOfDeleting() {
+        let candidates = CleanCatalog.fixed()
+        for candidate in candidates where candidate.section == .storage {
+            #expect(candidate.safety == .lookUp)
+            #expect(candidate.lookUp?.isEmpty == false)
+        }
+        let item = CleanItem(candidate: CleanCandidate(path: "/tmp/x", label: "Old Stuff", detail: "", section: .app, safety: .review), size: 1)
+        #expect(item.lookUpQuery.contains("Old Stuff"))
+        #expect(WebLookup.uninstallQuery(for: "Acme VPN").contains("Acme VPN"))
     }
 }
 
@@ -118,7 +146,7 @@ struct PersonalizationTests {
     @Test func presetsSelectTheRightItems() {
         let items = [
             item("browser", .browsers, .safe), item("derived", .developer, .safe), item("archives", .developer, .review),
-            item("prefs", .leftovers, .review), item("backups", .storage, .manual),
+            item("prefs", .leftovers, .review), item("backups", .storage, .lookUp),
         ]
         #expect(CleanPreset.recommended.selection(from: items) == ["/tmp/browser", "/tmp/derived"])
         #expect(CleanPreset.light.selection(from: items) == ["/tmp/browser"])

@@ -406,7 +406,13 @@ private struct FanSettings: View {
                 }
                 .disabled(fan.isWorking)
                 if settings.fanControlEnabled, fan.helperState == .outdated || fan.helperState == .unreachable {
-                    Button("Reinstall Helper…") { Task { await fan.reinstall() } }
+                    HStack {
+                        Button(fan.helperState == .outdated ? "Update Helper…" : "Reinstall Helper…") { Task { await fan.reinstall() } }
+                        if fan.helperState == .unreachable {
+                            Button("Open Login Items") { SystemActions.openLoginItemsSettings() }
+                                .help("macOS stops background helpers that are switched off under Allow in the Background")
+                        }
+                    }
                 }
                 if let message = fan.message { Text(message).font(.caption).foregroundStyle(Color.accentAmber) }
             }

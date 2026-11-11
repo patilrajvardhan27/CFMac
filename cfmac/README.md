@@ -18,7 +18,7 @@ artwork is credited in [NOTICES.md](NOTICES.md).
 ## Build, run and test
 
 ```bash
-cd Product/cfmac
+cd cfmac
 ./scripts/build-app.sh       # fetches artwork, builds, signs → build/cfmac.app
 open build/cfmac.app
 ./scripts/test.sh            # unit tests (Swift Testing)
@@ -43,7 +43,7 @@ Privacy & Security.
 
 | Area              | What it does                                                                                                                                                                                                                                                                                                                                                                                                    |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Clean**         | Scans known cache, log, developer, browser, chat, AI, cloud and leftover locations, plus every app's Chromium and Electron caches. You review each section, items are marked Safe, Review or Manual, and you can choose _Never Clean This_. If an app is using an item, cfmac offers to quit it. Items go to the Trash by default                                                                               |
+| **Clean**         | Scans known cache, log, developer, browser, chat, AI, cloud and leftover locations, plus every app's Chromium and Electron caches. You review each section, items are marked Safe, Review or Look Up, and you can choose _Never Clean This_. Large data that is unsafe to bulk-delete (device backups, local AI models, Docker's disk, simulators) gets a **Look Up** button that opens a web search for the safe way to free it. If an app is using an item, cfmac offers to quit it. Items go to the Trash by default                                                                               |
 | **Apps**          | _Uninstall_ removes apps with their leftover data (Auto/Review matches) or clears data only. _Updates_ uses Homebrew and the App Store, and can also uninstall any listed package or app (casks optionally with their data). _Startup_ lists background services you can enable, disable or trash                                                                                                                                                                                                    |
 | **Optimize**      | Rebuilds QuickLook, clears old window states, removes broken agents, repairs corrupted preferences and clears quarantine history. Flushing DNS, purging memory and periodic maintenance run as admin behind one password prompt. Glitch fixes restart stuck system UI                                                                                                                                           |
 | **Analyze**       | Drills into the whole disk with a squarified treemap, breadcrumbs, _This Folder_ / _Largest Files_ views, and Move to Trash                                                                                                                                                                                                                                                                                     |
@@ -88,6 +88,11 @@ Fan). Reading fan speed and chip temperatures needs no privileges; only changing
 - **Safety:** speeds stay between each fan's own minimum and maximum. The helper saves the
   fans' original mode and restores exactly that when you choose Auto, quit cfmac, turn fan
   control off, or when cfmac fails to renew its **20-second lease** (for example, after a crash).
+  cfmac renews the lease from its own background loop, so Cool and Max hold with any tab open,
+  from the menu bar, or with the window closed. If the helper itself stops unexpectedly, it saves
+  the original fan state first and restores it when launchd starts it again.
+- **Updating cfmac** ships a new helper. The first time you pick Cool or Max afterwards, cfmac asks
+  once to update it.
 - **Your curve:** drag the points of the Cool curve in Settings › Fan. Quiet hours cap Cool's
   speed at night, and app rules raise the mode while an app runs (for example, Cool while Xcode
   builds).
@@ -107,8 +112,10 @@ that the RPM changes on your Mac.
 - **No sensitive permissions.** No camera, microphone, location, contacts, photos or Focus
   access. Global shortcuts use Carbon hot keys, which need no Accessibility permission.
 - **Offline by default.** cfmac never contacts the internet on its own. Updates are checked only
-  when you click Check Now, through Homebrew or `mas`. A unit test fails the build if networking
-  APIs, web links or personal-data frameworks appear in the sources.
+  when you click Check Now, through Homebrew or `mas`. **Look Up** opens a search page in your
+  browser only when you click it, and the query holds only the item's name. A unit test fails the
+  build if networking APIs, personal-data frameworks or any web link other than that search page
+  appear in the sources.
 - **Local data only.** Preferences, stats, imported sounds (copied into an owner-only folder)
   and the last automatic clean's undo list stay in your user Library; Settings › Privacy erases
   them.

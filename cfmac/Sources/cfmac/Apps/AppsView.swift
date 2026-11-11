@@ -201,9 +201,13 @@ struct AppRow: View {
             }
             Spacer()
             if app.requiresVendorUninstaller {
-                Button("Uninstall instructions") { SystemActions.showVendorUninstallHelp(for: app.path, name: app.name) }
-                    .buttonStyle(PillButtonStyle())
-                    .help("cfmac will not remove \(app.name) directly. Use the vendor's official uninstaller.")
+                Button {
+                    SystemActions.lookUpUninstall(name: app.name)
+                } label: {
+                    Label("Look Up How to Uninstall", systemImage: "safari")
+                }
+                .buttonStyle(PillButtonStyle(tint: .accentBlue))
+                .help("\(app.name) ships its own uninstaller. This searches the web for the vendor's removal steps.")
             } else {
                 Toggle("Select \(app.name)", isOn: Binding(get: { model.checked.contains(app.path) }, set: { _ in model.toggleChecked(app) }))
                     .toggleStyle(.checkbox)
@@ -219,6 +223,7 @@ struct AppRow: View {
         .contextMenu {
             Button("Show Associated Data…") { model.openDetail(app) }.disabled(app.requiresVendorUninstaller)
             Button("Reveal in Finder") { SystemActions.reveal(app.path) }
+            Button("Look Up How to Uninstall") { SystemActions.lookUpUninstall(name: app.name) }
         }
     }
 

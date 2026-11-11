@@ -173,8 +173,8 @@ struct CleanRow: View {
     var body: some View {
         let owner = model.runningOwner(of: item)
         HStack(spacing: 10) {
-            if item.safety == .manual {
-                Image(systemName: "info.circle").foregroundStyle(Color.secondaryText).frame(width: 20)
+            if item.safety == .lookUp {
+                Image(systemName: "magnifyingglass").foregroundStyle(Color.secondaryText).frame(width: 20)
             } else {
                 Toggle("Select \(item.label)", isOn: Binding(get: { model.selection.contains(item.path) }, set: { _ in model.toggle(item) }))
                     .toggleStyle(.checkbox)
@@ -199,6 +199,15 @@ struct CleanRow: View {
             if let owner {
                 Button("Quit") { owner.terminate() }.buttonStyle(PillButtonStyle(tint: .accentRed))
             }
+            if item.safety == .lookUp {
+                Button {
+                    SystemActions.lookUp(item.lookUpQuery)
+                } label: {
+                    Label("Look Up", systemImage: "safari")
+                }
+                .buttonStyle(PillButtonStyle(tint: .accentBlue))
+                .help("Search the web for how to free this space safely")
+            }
             Text(Format.bytes(item.size)).font(.system(size: 12, weight: .medium)).monospacedDigit()
         }
         .padding(.vertical, 5)
@@ -206,6 +215,7 @@ struct CleanRow: View {
         .contextMenu {
             Button("Reveal in Finder") { SystemActions.reveal(item.path) }
             Button("Copy Path") { SystemActions.copy(item.path) }
+            Button("Look Up How to Free This Space") { SystemActions.lookUp(item.lookUpQuery) }
             Divider()
             Button("Never Clean This") { withAnimation(Motion.content) { model.neverClean(item) } }
         }
@@ -215,7 +225,7 @@ struct CleanRow: View {
         switch safety {
         case .safe: .accentGreen
         case .review: .accentAmber
-        case .manual: .ink
+        case .lookUp: .accentBlue
         }
     }
 }

@@ -18,7 +18,7 @@ public enum CleanSection: String, CaseIterable, Identifiable, Sendable {
         case .cloud: "Cloud Storage"
         case .leftovers: "Uninstalled App Leftovers"
         case .trash: "Trash"
-        case .storage: "Manage Separately"
+        case .storage: "Free Up With a Guide"
         }
     }
 
@@ -35,7 +35,7 @@ public enum CleanSection: String, CaseIterable, Identifiable, Sendable {
         case .cloud: "Cloud sync caches. Re-syncs when accessed"
         case .leftovers: "Files left by deleted apps. Some may hold settings you want, so pick what to remove"
         case .trash: "Everything in the Trash. It can't be recovered once emptied"
-        case .storage: "Shown for size only, cfmac won't clean these. Manage them in their app"
+        case .storage: "Too risky to bulk-delete. Look Up opens a web search with the safe way to free each one"
         }
     }
 
@@ -60,13 +60,13 @@ public enum CleanSection: String, CaseIterable, Identifiable, Sendable {
 public enum Safety: String, Sendable {
     case safe = "Safe"
     case review = "Review"
-    case manual = "Manual"
+    case lookUp = "Look Up"
 
     public var help: String {
         switch self {
         case .safe: "Regenerable caches or logs, selected by default"
         case .review: "May hold app data or development files you still need"
-        case .manual: "cfmac does not delete this. Manage it yourself"
+        case .lookUp: "cfmac doesn't delete this in bulk. Look Up searches the web for the safe way to free this space"
         }
     }
 }
@@ -84,6 +84,8 @@ public struct CleanCandidate: Sendable, Equatable {
     public var contentsOnly = false
     /// Never moved to the Trash (the Trash itself).
     public var permanentOnly = false
+    /// Web search for freeing this space; defaults to one built from the label.
+    public var lookUp: String?
 }
 
 /// Knows where cleanable data lives. Every query is read-only.
@@ -158,18 +160,20 @@ public enum CleanCatalog {
             .init(path: home("Library/Caches/CloudKit"), label: "CloudKit Cache", detail: "Re-syncs when accessed", section: .cloud, safety: .safe),
             .init(path: home(".Trash"), label: "Trash", detail: "Empty permanently", section: .trash, safety: .review, contentsOnly: true, permanentOnly: true),
             .init(
-                path: home("Library/Application Support/MobileSync/Backup"), label: "iPhone or iPad Backups", detail: "Manage in Finder › your device",
-                section: .storage, safety: .manual),
-            .init(path: home(".ollama/models"), label: "Ollama Models", detail: "Remove unused models with ollama rm", section: .storage, safety: .manual),
+                path: home("Library/Application Support/MobileSync/Backup"), label: "iPhone or iPad Backups", detail: "Local backups of your devices",
+                section: .storage, safety: .lookUp, lookUp: "how to delete old iPhone and iPad backups on Mac to free up space"),
             .init(
-                path: home(".cache/lm-studio/models"), label: "LM Studio Models", detail: "Remove unused models in LM Studio", section: .storage,
-                safety: .manual),
+                path: home(".ollama/models"), label: "Ollama Models", detail: "Downloaded local AI models", section: .storage, safety: .lookUp,
+                lookUp: "how to delete Ollama models on Mac to free up disk space"),
             .init(
-                path: home("Library/Containers/com.docker.docker/Data/vms"), label: "Docker Disk Image", detail: "Use docker system prune", section: .storage,
-                safety: .manual),
+                path: home(".cache/lm-studio/models"), label: "LM Studio Models", detail: "Downloaded local AI models", section: .storage,
+                safety: .lookUp, lookUp: "how to delete LM Studio models on Mac to free up disk space"),
             .init(
-                path: home("Library/Developer/CoreSimulator/Devices"), label: "Simulator Devices", detail: "Delete unused simulators in Xcode",
-                section: .storage, safety: .manual),
+                path: home("Library/Containers/com.docker.docker/Data/vms"), label: "Docker Disk Image", detail: "Docker Desktop's virtual disk",
+                section: .storage, safety: .lookUp, lookUp: "how to reduce Docker Desktop disk image size on Mac to free up space"),
+            .init(
+                path: home("Library/Developer/CoreSimulator/Devices"), label: "Simulator Devices", detail: "Installed iOS, watchOS and tvOS simulators",
+                section: .storage, safety: .lookUp, lookUp: "how to delete unused Xcode simulators on Mac to free up disk space"),
         ]
         return list.filter { DiskUsage.exists($0.path) }
     }

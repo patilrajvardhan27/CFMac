@@ -6,11 +6,17 @@ struct FanEnableSheet: View {
     @EnvironmentObject private var fan: FanController
     @Environment(\.dismiss) private var dismiss
 
+    private var isUpdate: Bool { fan.isEnabled && fan.helperState == .outdated }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Label("Turn on fan control?", systemImage: "fan").font(.title2.bold())
-            Text("Cool and Max need a small helper that runs with administrator rights. It controls fans and nothing else, and it only answers your account.")
-                .fixedSize(horizontal: false, vertical: true)
+            Label(isUpdate ? "Update the fan helper?" : "Turn on fan control?", systemImage: "fan").font(.title2.bold())
+            Text(
+                isUpdate
+                    ? "This version of cfmac ships a newer fan helper. Approve once to replace the installed one; your fan settings stay as they are."
+                    : "Cool and Max need a small helper that runs with administrator rights. It controls fans and nothing else, and it only answers your account."
+            )
+            .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading, spacing: 6) {
                 Text("cfmac will:").font(.headline)
@@ -42,7 +48,7 @@ struct FanEnableSheet: View {
                 Button("Not Now") { dismiss() }.keyboardShortcut(.cancelAction)
                 Spacer()
                 if fan.isWorking { ProgressView().controlSize(.small) }
-                Button("Turn On…") {
+                Button(isUpdate ? "Update…" : "Turn On…") {
                     Task {
                         if await fan.enable() { dismiss() }
                     }

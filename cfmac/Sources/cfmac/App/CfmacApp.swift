@@ -149,6 +149,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if AppSettings.shared.fanControlEnabled, FanController.shared.helperState == .notInstalled {
                 AppSettings.shared.fanControlEnabled = false
             }
+            FanController.shared.start()
         }
     }
 

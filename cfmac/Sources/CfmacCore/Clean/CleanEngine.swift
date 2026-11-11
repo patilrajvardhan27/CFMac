@@ -11,6 +11,8 @@ public struct CleanItem: Identifiable, Hashable, Sendable {
     public let owners: [String]
     public let contentsOnly: Bool
     public let permanentOnly: Bool
+    /// Web search that explains how to free this space.
+    public let lookUpQuery: String
 
     public init(candidate: CleanCandidate, size: Int64) {
         path = candidate.path
@@ -21,6 +23,7 @@ public struct CleanItem: Identifiable, Hashable, Sendable {
         owners = candidate.owners
         contentsOnly = candidate.contentsOnly
         permanentOnly = candidate.permanentOnly
+        lookUpQuery = candidate.lookUp ?? WebLookup.freeSpaceQuery(for: candidate.label)
         self.size = size
     }
 }

@@ -563,7 +563,7 @@ Interface icons are SF Symbols. See `cfmac/NOTICES.md`.
 | -------------------------------------------------------------------------------------------------------- | ----- | ----------------------------------------------------------------------------------------------- |
 | Per-tab tinted gradients, pill tab bar, 3D planet heroes, white capsule CTA, card grid                   | ✅    | Earth with orbiting Moon (Clean), Mercury (Optimize), Jupiter (Analyze), Sun (Health)           |
 | Animations: sliding tab pill, spinning planets (faster while working), counting numbers, staggered cards | ✅    | SceneKit planets; SwiftUI transitions                                                           |
-| Clean: scan → found → review → clean → result                                                            | ✅    | 11 sections, Safe/Review/Manual, presets, _Never Clean This_, _In use + Quit_, grouped results  |
+| Clean: scan → found → review → clean → result                                                            | ✅    | 11 sections, Safe/Review/Look Up, presets, _Never Clean This_, _In use + Quit_, grouped results  |
 | Chromium/Electron cache discovery, leftovers of removed apps, Trash, size-only items                     | ✅    | Container leftovers only with Full Disk Access                                                  |
 | AI Tool Cleanup sub-screen, VM reclaim, log truncation, Time Machine snapshots                           | ❌    | AI caches appear as a Clean section instead                                                     |
 | Apps · Uninstall with leftovers (Auto/Review, evidence) and keep-app/clear-data                          | ✅    | Bundle-ID and name evidence; Finder fallback for root-owned apps                                |

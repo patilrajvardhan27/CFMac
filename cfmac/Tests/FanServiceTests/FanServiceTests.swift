@@ -101,6 +101,27 @@ struct FanCurveTests {
         #expect(FanMode.automatic < .cool && FanMode.cool < .maximum)
     }
 
+    @Test func fansWithoutASpeedRangeAreNotDriven() {
+        let broken = FanReading(index: 0, rpm: 0, minimum: 0, maximum: 0, target: nil, mode: nil)
+        #expect(!broken.isControllable)
+        #expect(broken.rpm(atFraction: 1) == 0)
+        let fan = FanReading(index: 0, rpm: 1200, minimum: 2317, maximum: 6550, target: nil, mode: 0)
+        #expect(fan.isControllable)
+        #expect(fan.rpm(atFraction: .nan) == 6550)
+    }
+
+    @Test func smallFirmwareRoundingStillCountsAsApplied() {
+        #expect(FanControl.accepts(applied: 2320, requested: 2317))
+        #expect(FanControl.accepts(applied: 6500, requested: 6550))
+        #expect(!FanControl.accepts(applied: 2317, requested: 6550))
+    }
+
+    @Test func snapshotSurvivesARestart() throws {
+        let snapshot = FanControlSnapshot(modes: [0: 3, 1: 0], unlock: 0)
+        let data = try JSONEncoder().encode(snapshot)
+        #expect(try JSONDecoder().decode(FanControlSnapshot.self, from: data) == snapshot)
+    }
+
     @Test func fanPositionsStayWithinLimits() {
         let fan = FanReading(index: 0, rpm: 1200, minimum: 2317, maximum: 6550, target: nil, mode: 3)
         #expect(fan.rpm(atFraction: 0) == 2317)
@@ -133,6 +154,7 @@ struct HelperProtocolTests {
         #expect(plist["Label"] as? String == HelperLayout.label)
         #expect(plist["ProgramArguments"] as? [String] == [HelperLayout.executablePath, "--allowed-uid", "501"])
         #expect(HelperInstallScript.uninstall().contains("bootout system/\(HelperLayout.label)"))
+        #expect(HelperInstallScript.uninstall().contains(HelperLayout.statePath))
     }
 
     /// One request and response over a real Unix socket, framed by newlines.

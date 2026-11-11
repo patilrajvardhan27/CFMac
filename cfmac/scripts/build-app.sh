@@ -5,8 +5,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP="$ROOT/build/cfmac.app"
-VERSION="${VERSION:-2.0.0}"
-BUILD_NUMBER="${BUILD_NUMBER:-1}"
+VERSION="${VERSION:-2.1.0}"
+BUILD_NUMBER="${BUILD_NUMBER:-2}"
 cd "$ROOT"
 
 "$ROOT/scripts/fetch-artwork.sh"
