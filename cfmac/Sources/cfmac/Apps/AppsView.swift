@@ -27,7 +27,7 @@ struct AppsView: View {
 
     private var toolbar: some View {
         HStack(spacing: 10) {
-            SegmentedPills(selection: Binding(get: { model.segment }, set: select), options: AppsModel.Segment.allCases) { $0.rawValue }
+            SegmentedPills(selection: Binding(get: { model.segment }, set: { select($0) }), options: AppsModel.Segment.allCases) { $0.rawValue }
             Button(action: refresh) { Image(systemName: "arrow.clockwise") }
                 .buttonStyle(.plain)
                 .foregroundStyle(Color.secondaryText)

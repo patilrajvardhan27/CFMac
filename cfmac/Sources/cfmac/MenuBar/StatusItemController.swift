@@ -115,12 +115,12 @@ final class StatusItemController: NSObject {
         guard let button = item?.button, let models else { return }
         var parts = models.settings.menuBarContent == .runner ? [] : models.settings.menuBarMetrics.map { text(for: $0, models) }
         if models.awake.isActive { parts.insert("☕︎", at: 0) }
-        let text = parts.joined(separator: "  ")
-        button.attributedTitle = NSAttributedString(string: text.isEmpty ? "" : " " + text, attributes: [.font: Self.titleFont])
-        if !showsRunner, text.isEmpty {
+        let title = parts.joined(separator: "  ")
+        button.attributedTitle = NSAttributedString(string: title.isEmpty ? "" : " " + title, attributes: [.font: Self.titleFont])
+        if !showsRunner, title.isEmpty {
             button.image = NSImage(systemSymbolName: "globe.americas.fill", accessibilityDescription: AppInfo.name)
         }
-        button.setAccessibilityLabel("\(AppInfo.name) \(text)")
+        button.setAccessibilityLabel("\(AppInfo.name) \(title)")
     }
 
     private func text(for metric: MenuBarMetric, _ models: AppModels) -> String {
