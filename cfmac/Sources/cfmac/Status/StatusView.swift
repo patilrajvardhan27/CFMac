@@ -40,12 +40,8 @@ struct StatusView: View {
         .sheet(isPresented: $customizing) { StatusCustomizeSheet().environmentObject(settings) }
         .onAppear { monitor.retain() }
         .onDisappear { monitor.release() }
-        .task {
-            while !Task.isCancelled {
-                await fan.refresh()
-                try? await Task.sleep(for: .seconds(SystemMonitor.interval))
-            }
-        }
+        // Fan readings and the helper lease are kept current by FanController's own loop.
+        .task { await fan.refresh() }
     }
 
     @ViewBuilder

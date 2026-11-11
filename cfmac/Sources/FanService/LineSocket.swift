@@ -21,6 +21,7 @@ public struct LineSocket: ~Copyable {
         let fd = socket(AF_UNIX, SOCK_STREAM, 0)
         guard fd >= 0 else { throw LineSocketError.system("socket", errno) }
         let socket = LineSocket(descriptor: fd)
+        socket.disableSigPipe()
         try socket.setTimeout(timeout)
         var address = try Self.address(for: path)
         let result = withUnsafePointer(to: &address) {
@@ -28,6 +29,12 @@ public struct LineSocket: ~Copyable {
         }
         guard result == 0 else { throw LineSocketError.system("connect", errno) }
         return socket
+    }
+
+    /// Writes to a peer that has gone away fail with EPIPE instead of raising SIGPIPE.
+    public func disableSigPipe() {
+        var on: Int32 = 1
+        setsockopt(descriptor, SOL_SOCKET, SO_NOSIGPIPE, &on, socklen_t(MemoryLayout<Int32>.size))
     }
 
     public func setTimeout(_ seconds: TimeInterval) throws {

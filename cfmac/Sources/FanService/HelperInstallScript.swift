@@ -62,7 +62,7 @@ public enum HelperInstallScript {
     public static func uninstall() -> String {
         """
         /bin/launchctl bootout system/\(HelperLayout.label) 2>/dev/null || true
-        /bin/rm -f \(quote(HelperLayout.launchdPlistPath)) \(quote(HelperLayout.executablePath)) \(quote(HelperLayout.socketPath))
+        /bin/rm -f \(quote(HelperLayout.launchdPlistPath)) \(quote(HelperLayout.executablePath)) \(quote(HelperLayout.socketPath)) \(quote(HelperLayout.statePath))
         """
     }
 

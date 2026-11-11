@@ -26,7 +26,11 @@ do {
     exit(EX_UNAVAILABLE)
 }
 
+// A client that disconnects early must not kill the helper while it holds the fans.
+signal(SIGPIPE, SIG_IGN)
+
 let supervisor = FanSupervisor(smc: smc)
+supervisor.recoverFromPreviousRun()
 supervisor.startWatchdog()
 
 let server = SocketServer(path: HelperLayout.socketPath, allowedUID: allowedUID, supervisor: supervisor)

@@ -7,6 +7,8 @@ public enum HelperLayout {
     public static let executablePath = "/Library/PrivilegedHelperTools/\(label)"
     public static let launchdPlistPath = "/Library/LaunchDaemons/\(label).plist"
     public static let socketPath = "/var/run/\(label).sock"
+    /// Fan state saved while the helper holds control, for recovery after an unexpected stop.
+    public static let statePath = "/var/run/\(label).state"
     /// Bumped whenever the request or response format changes.
     public static let protocolVersion = 1
     /// Manual fan control ends automatically unless the app renews it within this window.

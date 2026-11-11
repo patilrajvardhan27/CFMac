@@ -49,6 +49,9 @@ final class SystemMonitor: ObservableObject {
             ))
     }
 
+    /// True while any screen or the menu bar is showing live readings.
+    var isSampling: Bool { timer != nil }
+
     /// Starts sampling for one more consumer. Balance with `release()`.
     func retain() {
         consumers += 1

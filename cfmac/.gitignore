@@ -1,4 +1,5 @@
 .build/
 build/
 .swiftpm/
-Artwork/
+# Downloaded artwork lives at the package root only; Sources/Artwork is code.
+/Artwork/

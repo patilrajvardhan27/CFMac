@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  push:
+    branches: [main, raj-asleep]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dmg:
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: cfmac
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        working-directory: .
+        run: |
+          # Use the newest Xcode on the runner, closest to a current Mac's toolchain.
+          latest="$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -v -i beta | sort -V | tail -1)"
+          [[ -n "$latest" ]] && sudo xcode-select -s "$latest"
+          xcode-select -p
+          swift --version
+
+      - name: Fetch artwork
+        run: ./scripts/fetch-artwork.sh
+
+      - name: Test
+        run: ./scripts/test.sh
+
+      - name: Build app and disk image
+        run: ./scripts/make-dmg.sh
+
+      - name: Version
+        id: version
+        run: echo "value=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' build/cfmac.app/Contents/Info.plist)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cfmac-${{ steps.version.outputs.value }}-dmg
+          path: cfmac/build/cfmac-${{ steps.version.outputs.value }}.dmg
+          if-no-files-found: error

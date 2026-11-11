@@ -33,7 +33,7 @@ public enum CleanPreset: String, CaseIterable, Codable, Identifiable, Sendable {
         case .recommended: item.safety == .safe
         case .light: item.safety == .safe && Self.lightSections.contains(item.section)
         case .developer: item.safety == .safe || (item.section == .developer && item.safety == .review)
-        case .everything: item.safety != .manual
+        case .everything: item.safety != .lookUp
         case .none: false
         }
     }

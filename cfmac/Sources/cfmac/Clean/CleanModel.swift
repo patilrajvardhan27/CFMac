@@ -91,7 +91,7 @@ final class CleanModel: ObservableObject {
     }
 
     func toggle(_ item: CleanItem) {
-        guard item.safety != .manual else { return }
+        guard item.safety != .lookUp else { return }
         if selection.remove(item.path) == nil { selection.insert(item.path) }
     }
 
@@ -108,7 +108,7 @@ final class CleanModel: ObservableObject {
     // MARK: Cleaning
 
     func clean() {
-        let chosen = items.filter { selection.contains($0.path) && $0.safety != .manual }
+        let chosen = items.filter { selection.contains($0.path) && $0.safety != .lookUp }
         guard !chosen.isEmpty else { return }
         phase = .cleaning
         progress = 0

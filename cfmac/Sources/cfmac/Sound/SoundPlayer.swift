@@ -105,8 +105,10 @@ final class SoundPlayer: NSObject {
 
 extension SoundPlayer: NSSoundDelegate {
     nonisolated func sound(_ sound: NSSound, didFinishPlaying finished: Bool) {
+        // Compare by identity so the non-Sendable sound never crosses into the main actor.
+        let finishedSound = ObjectIdentifier(sound)
         MainActor.assumeIsolated {
-            if current === sound { current = nil }
+            if let current, ObjectIdentifier(current) == finishedSound { self.current = nil }
         }
     }
 }

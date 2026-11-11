@@ -10,4 +10,5 @@ if [[ "$(xcode-select -p)" == "$CLT" && -d "$CLT/usr/lib/swift/host/plugins/test
          -Xswiftc -F -Xswiftc "$CLT/Library/Developer/Frameworks"
          -Xlinker -rpath -Xlinker "$CLT/Library/Developer/Frameworks")
 fi
-swift test "${FLAGS[@]}" "$@"
+# ${FLAGS[@]+...} keeps bash 3.2 (macOS) from treating an empty array as unbound under set -u.
+swift test ${FLAGS[@]+"${FLAGS[@]}"} "$@"

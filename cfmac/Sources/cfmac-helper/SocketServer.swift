@@ -54,6 +54,7 @@ final class SocketServer: @unchecked Sendable {
             log("rejected connection from uid \(uid)")
             return
         }
+        connection.disableSigPipe()
         do {
             try connection.setTimeout(3)
             let line = try connection.receiveLine(maxBytes: HelperLayout.maxMessageBytes)

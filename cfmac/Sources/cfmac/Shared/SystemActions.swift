@@ -1,4 +1,5 @@
 import AppKit
+import CfmacCore
 
 /// Small AppKit side effects shared by several screens.
 @MainActor
@@ -20,18 +21,16 @@ enum SystemActions {
         open("x-apple.systempreferences:com.apple.LoginItems-Settings.extension")
     }
 
-    /// Explains, locally, how to remove software that ships its own uninstaller. No web lookup.
-    static func showVendorUninstallHelp(for appPath: String, name: String) {
-        let alert = NSAlert()
-        alert.messageText = "\(name) has its own uninstaller"
-        alert.informativeText = """
-            Security, VPN and device-management software must be removed with the vendor's tool so its \
-            system extensions are cleaned up correctly. Look for an "Uninstall" app next to \(name), in \
-            /Applications/Utilities, or in the installer you downloaded.
-            """
-        alert.addButton(withTitle: "Show in Finder")
-        alert.addButton(withTitle: "Close")
-        if alert.runModal() == .alertFirstButtonReturn { reveal(appPath) }
+    /// Opens a web search for `query` in the default browser. Nothing is sent until the user clicks.
+    static func lookUp(_ query: String) {
+        guard let url = WebLookup.searchURL(query) else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    /// Software with its own uninstaller (security, VPN, device management): search the web
+    /// for the vendor's removal steps, so its system extensions are removed correctly too.
+    static func lookUpUninstall(name: String) {
+        lookUp(WebLookup.uninstallQuery(for: name))
     }
 
     private static func open(_ link: String) {
