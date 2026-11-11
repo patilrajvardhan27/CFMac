@@ -22,7 +22,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Toolchain
-        run: swift --version
+        working-directory: .
+        run: |
+          # Use the newest Xcode on the runner, closest to a current Mac's toolchain.
+          latest="$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -v -i beta | sort -V | tail -1)"
+          [[ -n "$latest" ]] && sudo xcode-select -s "$latest"
+          xcode-select -p
+          swift --version
 
       - name: Fetch artwork
         run: ./scripts/fetch-artwork.sh
